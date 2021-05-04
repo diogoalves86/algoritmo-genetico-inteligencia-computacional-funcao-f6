@@ -29,10 +29,20 @@ def function_f6(I):
 # -----------------------------------------------------------------------------------------------#
 
 def crossover(pop, crossover_rate):
-    offspring = list()
-    for i in range(int(len(pop)/ 2)):
-        p1 = pop[2 * i - 1].copy()  # parent 1
-        p2 = pop[2 * i].copy()  # parent 2
+    _, pop_bin = pop[0], pop[1]
+    offspringX = list()
+    offspringY = list()
+    population_crossover = []
+    for i in range(len(pop_bin)):
+        if i > len(pop_bin)-1:
+            break
+        p1x = pop_bin[i]['x']  # parent 1
+        p2x = pop_bin[i+1]['x']  # parent 2
+        p1y = pop_bin[i]['y']  # parent 1
+        p2y = pop_bin[i+1]['y']  # parent 2
+        print(p1x)
+        sys.exit()
+        '''
         if rand() < crossover_rate:
             cp = randint(1,len(p1)-1,size=2)
             while cp[0] == cp[1]:
@@ -45,7 +55,22 @@ def crossover(pop, crossover_rate):
         else:
             offspring.append(p1)
             offspring.append(p2)
+        '''
     return offspring
+
+def meio_crossover (p1,crossover_rate,offspring):
+    if rand() < crossover_rate:
+        cp = randint(1, len(p1) - 1, size=2)
+        while cp[0] == cp[1]:
+            cp = randint(1, len(p1) - 1, size=2)
+        cp = sorted(cp)
+        c1 = p1[:cp[0]] + p2[cp[0]:cp[1]] + p1[cp[1]:]
+        c2 = p2[:cp[0]] + p1[cp[0]:cp[1]] + p2[cp[1]:]
+        offspring.append(c1)
+        offspring.append(c2)
+    else:
+        offspring.append(p1)
+        offspring.append(p2)
 
 
 def mutation(pop, mutation_rate):
