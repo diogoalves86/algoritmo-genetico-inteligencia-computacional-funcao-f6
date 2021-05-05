@@ -28,53 +28,9 @@ def function_f6(I):
 
 # -----------------------------------------------------------------------------------------------#
 
-def crossover(pop, crossover_rate):
-    _, pop_bin = pop[0], pop[1]
-    offspringX = list()
-    offspringY = list()
-    population_crossover = []
-    for i in range(len(pop_bin)):
-        if i > len(pop_bin)-1:
-            break
-        p1x = pop_bin[i]['x']  # parent 1
-        p2x = pop_bin[i+1]['x']  # parent 2
-        p1y = pop_bin[i]['y']  # parent 1
-        p2y = pop_bin[i+1]['y']  # parent 2
-        print(p1x)
-        sys.exit()
-        '''
-        if rand() < crossover_rate:
-            cp = randint(1,len(p1)-1,size=2)
-            while cp[0] == cp[1]:
-                cp = randint(1,len(p1)-1,size=2)
-            cp = sorted(cp)
-            c1 = p1[:cp[0]] + p2[cp[0]:cp[1]] + p1[cp[1]:]
-            c2 = p2[:cp[0]] + p1[cp[0]:cp[1]] + p2[cp[1]:]
-            offspring.append(c1)
-            offspring.append(c2)
-        else:
-            offspring.append(p1)
-            offspring.append(p2)
-        '''
-    return offspring
-
-def meio_crossover (p1,crossover_rate,offspring):
-    if rand() < crossover_rate:
-        cp = randint(1, len(p1) - 1, size=2)
-        while cp[0] == cp[1]:
-            cp = randint(1, len(p1) - 1, size=2)
-        cp = sorted(cp)
-        c1 = p1[:cp[0]] + p2[cp[0]:cp[1]] + p1[cp[1]:]
-        c2 = p2[:cp[0]] + p1[cp[0]:cp[1]] + p2[cp[1]:]
-        offspring.append(c1)
-        offspring.append(c2)
-    else:
-        offspring.append(p1)
-        offspring.append(p2)
-
-
 def mutation(pop, mutation_rate):
     _,pop_bin = pop[0],pop[1]
+    print(pop_bin)
     offspringX = list()
     offspringY = list()
     population_mutaded = []
@@ -89,7 +45,6 @@ def mutation(pop, mutation_rate):
         }
         population_mutaded.append(individual_bit_mutaded)
     print(population_mutaded)
-    sys.exit()
     return population_mutaded
 
 def meio_mutation(p1,mutation_rate,offspring):
@@ -107,6 +62,41 @@ def meio_mutation(p1,mutation_rate,offspring):
     else:
         offspring.append(p1)
     return offspring
+
+def crossover(pop, crossover_rate):
+    _, pop_bin = pop[0], pop[1]
+    population_crossover = []
+    for i in range(len(pop_bin)-1):
+        p1x = pop_bin[i]['x']  # parent 1
+        p2x = pop_bin[i+1]['x']  # parent 2
+        p1y = pop_bin[i]['y']  # parent 1
+        p2y = pop_bin[i+1]['y']  # parent 2
+        
+        if rand() < crossover_rate:
+            cp = randint(1,len(pop_bin)-1,size=2)
+            while cp[0] == cp[1]:
+                cp = randint(1,len(pop_bin)-1,size=2)
+            cp = sorted(cp)
+            c1 = p1x[:cp[0]] + p2x[cp[0]:cp[1]] + p1x[cp[1]:]
+            c2 = p2y[:cp[0]] + p1y[cp[0]:cp[1]] + p2y[cp[1]:]
+            c = {
+                'x': c1,
+                'y': c2
+            }
+            population_crossover.append(c)
+        else:
+            c1 = {
+                'x':p1x,
+                'y':p1y
+            }
+            c2 = {
+                'x':p2x,
+                'y':p2y
+            }
+            population_crossover.append(c1)
+            population_crossover.append(c2)
+    return population_crossover
+
 
 # Seleção do metodo da roleta
 def selection(pop, fitness, pop_size):
@@ -137,39 +127,32 @@ def inicializa_pop(bounds,bits,genome):
         for j in range(len(genome)):
             if j < half_genome:
                 cromossomox += str(genome[j])
-                # print("x: " + cromossomox)
+
             else:
                 cromossomoy += str(genome[j])
-                # print("y: " + cromossomoy)
 
         individual_bit = {
             "x": cromossomox,
             "y": cromossomoy
         }
-        #print(cromossomox)
+        if cromossomox != '' and cromossomoy != '':
+            b = int(cromossomox,2)
+            cromossomox_float = float(b)
+            c = (int(cromossomoy, 2))
+            cromossomoy_float = float(c)
+            if type(cromossomox_float) == float and type(cromossomoy_float) == float:
+                cromossomox_decimal = cromossomox_float * float((upper_x_boundary - lower_x_boundary) / (pow(2, half_genome) - 1)) + float(lower_x_boundary)
+                cromossomoy_decimal = cromossomoy_float * float((upper_y_boundary - lower_y_boundary) / (pow(2, half_genome) - 1)) + float(lower_y_boundary)
+                individual = {
+                    "x": cromossomox_decimal,
+                    "y": cromossomoy_decimal
+                }
+                population.append(individual)
+                population_bit.append(individual_bit)
 
-        cromossomox_int = int(bytearray(cromossomox, "utf8"), 2)
-        cromossomoy_int = int(bytearray(cromossomoy, "utf8"), 2)
-        #print(cromossomox_int)
-
-        cromossomox_decimal = Decimal(cromossomox_int) * Decimal(
-            (upper_x_boundary - lower_x_boundary) / (pow(2, half_genome) - 1)) + Decimal(lower_x_boundary)
-        cromossomoy_decimal = Decimal(cromossomoy_int) * Decimal(
-            (upper_y_boundary - lower_y_boundary) / (pow(2, half_genome) - 1)) + Decimal(lower_y_boundary)
-
-        #print(cromossomox_decimal)
-
-        individual = {
-            "x": cromossomox_decimal,
-            "y": cromossomoy_decimal
-        }
-        population.append(individual)
-        population_bit.append(individual_bit)
-
-        genome = generate_genome(bits)
-
-    #print(population_bit)
-    #sys.exit()
+                genome = generate_genome(bits)
+            else:
+                break
     return population,population_bit
 
 
@@ -182,22 +165,24 @@ def generate_genome(length: int):
 genome = generate_genome(bits)
 pop = inicializa_pop(bounds,bits,genome)
 best_fitness = []
-
 for gen in range(iteration):
 
     offspring = mutation(pop, mutation_rate)
     offspring = crossover(pop, crossover_rate)
 
     for s in offspring:
-        pop.append(s)
+        pop = {
+            'x': s['x'],
+            'y': s['y']
+        }
+    print(pop)
 
     real_chromossome = [inicializa_pop(bounds,bits,p) for p in pop]
-
     for d in real_chromossome:
         fitness = function_f6(d)   #fitness value
 
     index = np.argmax(fitness)
-    current_best = pop[index]
+    current_best = pop[gen]
     best_fitness.append(1/max(fitness)-1)
     pop = selection(pop,fitness,pop_size)
 
