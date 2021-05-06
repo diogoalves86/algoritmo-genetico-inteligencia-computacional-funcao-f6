@@ -8,7 +8,7 @@ from decimal import Decimal
 
 # Parametros de entrada do GA
 bounds = [[-100, 100], [-100, 100]]
-iteration = 40
+iteration = 10
 half_genome = 22
 bits = 44  #numero de bits do Genoma
 pop_size = 100
@@ -17,8 +17,8 @@ mutation_rate = 0.08
 genome = []
 
 def function_f6(I):
-    x = I[0]
-    y = I[1]
+    x = I['x']
+    y = I['y']
     x_y_pow = float(x ** 2 + y ** 2)
     square_of_pow = math.sqrt(x_y_pow)
     sin_pow = (math.sin(square_of_pow) ** 2)
@@ -28,10 +28,8 @@ def function_f6(I):
 
 # -----------------------------------------------------------------------------------------------#
 
-def mutation(pop, mutation_rate):
-    _,pop_bin = pop[0],pop[1]
-    #print(pop_bin)
-    #sys.exit()
+def mutation(pop_bin, mutation_rate):
+
     offspringX = list()
     offspringY = list()
     population_mutaded = []
@@ -68,11 +66,11 @@ def meio_mutation(p1,mutation_rate,offspring):
 def crossover(pop_bin, crossover_rate):
 
     offspring = []
-    for i in range(len(pop_bin)-1):
-        p1x = pop_bin[i]['x']  # parent 1
-        p2x = pop_bin[i+1]['x']  # parent 2
-        p1y = pop_bin[i]['y']  # parent 1
-        p2y = pop_bin[i+1]['y']  # parent 2
+    for i in range(int(len(pop_bin)/2)):
+        p1x = pop_bin[2*i-1]['x']  # parent 1
+        p2x = pop_bin[2*i]['x']  # parent 2
+        p1y = pop_bin[2*i-1]['y']  # parent 1
+        p2y = pop_bin[2*i]['y']  # parent 2
         rand_variable = rand()
         if rand_variable < crossover_rate:
             #print("aleatorio",rand_variable)
@@ -104,16 +102,8 @@ def crossover(pop_bin, crossover_rate):
                 'y':p2y
             }
             offspring.append(c1)
+            #offspring.append(c2)
 
-        if i == len(pop_bin) - 2:
-            offspring.append(c2)
-
-
-
-
-    print(pop_bin,"teste")
-    print(offspring,"offspring")
-    sys.exit()
     return offspring
 
 
@@ -187,29 +177,44 @@ def generate_genome(length: int):
 
 genome = generate_genome(bits)
 pop_real,pop_bin = inicializa_pop(bounds,bits,genome)
+offspring_mutaded = []
+
 #print(pop_bin,"teste")
 #sys.exit()
-
+bits2 = 22
 best_fitness = []
-for gen in range(iteration):
+genome_list= []
 
+for gen in range(iteration):
+    print(gen)
     offspring = crossover(pop_bin, crossover_rate)
     offspring = mutation(offspring, mutation_rate)
 
     for p in offspring:
-        pop_bin.append(p)
-    print(pop_bin)
+        offspring_mutaded.append(p)
+
+    #print(offspring_mutaded,"p - agora vai",len(offspring_mutaded))
+    #sys.exit()
+
+    for _ in offspring_mutaded:
+        genome = ''.join(str(_['x'])+str(_['y']))
+        genome_list.append(genome)
+
+    for p in genome_list:
+        real_chromossome,_ = inicializa_pop(bounds,bits,p)
+
+    fitness = [function_f6(d) for d in real_chromossome]
+    #print(real_chromossome,"real")
+
+    print(fitness, "fitness")
     sys.exit()
 
-    real_chromossome = [inicializa_pop(bounds,bits,p) for p in pop_bin]
-
-    for d in real_chromossome:
-        fitness = function_f6(d)   #fitness value
-
     index = np.argmax(fitness)
-    current_best = pop_bin[gen]
+    current_best = offspring_mutaded[index]
     best_fitness.append(1/max(fitness)-1)
-    pop_bin = selection(pop_bin,fitness,pop_size)
+    offspring_mutaded = selection(offspring_mutaded,fitness,pop_size)
+
+print(offspring_mutaded,"lista dos melhores")
 
 
 # ---------------------------------Gerando os Gráficos-----------------------------------------------#
