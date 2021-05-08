@@ -8,7 +8,7 @@ from decimal import Decimal
 
 # Parametros de entrada do GA
 bounds = [[-100, 100], [-100, 100]]
-iteration = 10
+iteration = 40
 half_genome = 22
 bits = 44  #numero de bits do Genoma
 pop_size = 100
@@ -108,12 +108,9 @@ def crossover(pop_bin, crossover_rate):
 
 
 # Seleção do metodo da roleta
-def selection(pop, fitness, pop_size):
-    _, pop_bin = pop[0], pop[1]
+def selection(pop_bin, fitness, pop_size):
     next_generation = list()
     elite = np.argmax(fitness)
-
-
     next_generation.append(pop_bin[elite])     #mantem o melhor
     P = [f/sum(fitness) for f in fitness]  #seleção da prob
     index = list(range(int(len(pop_bin))))
@@ -178,44 +175,52 @@ def generate_genome(length: int):
 genome = generate_genome(bits)
 pop_real,pop_bin = inicializa_pop(bounds,bits,genome)
 offspring_mutaded = []
-
-#print(pop_bin,"teste")
-#sys.exit()
 bits2 = 22
 best_fitness = []
 genome_list= []
 
 for gen in range(iteration):
-    print(gen)
+    print(gen,"- geração")
     offspring = crossover(pop_bin, crossover_rate)
     offspring = mutation(offspring, mutation_rate)
 
     for p in offspring:
         offspring_mutaded.append(p)
-
-    #print(offspring_mutaded,"p - agora vai",len(offspring_mutaded))
-    #sys.exit()
+    #print(offspring_mutaded," - Offspring Mutated")
 
     for _ in offspring_mutaded:
         genome = ''.join(str(_['x'])+str(_['y']))
         genome_list.append(genome)
 
+    #chama a função inicializa para fazer a decodificação da lista mutada/com crossover dos 44 bits para reais
     for p in genome_list:
-        real_chromossome,_ = inicializa_pop(bounds,bits,p)
+        real_chromossome,real_chromossome_bin = inicializa_pop(bounds,bits,p)
 
+    #calcula os valores da função f6
     fitness = [function_f6(d) for d in real_chromossome]
-    #print(real_chromossome,"real")
 
-    print(fitness, "fitness")
-    sys.exit()
-
+    #Descobre o indice do melhor e do pior e seleciona o melhor em real e binario
     index = np.argmax(fitness)
-    current_best = offspring_mutaded[index]
-    best_fitness.append(1/max(fitness)-1)
-    offspring_mutaded = selection(offspring_mutaded,fitness,pop_size)
+    index_min = np.argmin(fitness)
+    current_best = fitness[index]
+    current_best_bin = real_chromossome_bin[index]
+    current_worst_bin = real_chromossome_bin[index_min]
 
-print(offspring_mutaded,"lista dos melhores")
+    #seleciona o valor maximo em real
+    best_fitness.append(max(fitness))
 
+
+    #faz a seleção na lista de população, adiciona o melhor binario anterior e deleta o pior
+    pop_bin = selection(real_chromossome_bin,fitness,pop_size)
+    pop_bin.append(current_best_bin) #consertar - esta adicionando num real na lista bin
+    del (pop_bin[index_min])
+
+
+print(best_fitness, "lista dos melhores")
+media = np.mean(best_fitness)
+
+print(media," - Media dos valores do experimento.")
+sys.exit()
 
 # ---------------------------------Gerando os Gráficos-----------------------------------------------#
 
