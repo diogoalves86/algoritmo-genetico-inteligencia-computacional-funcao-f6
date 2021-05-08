@@ -178,57 +178,59 @@ offspring_mutaded = []
 bits2 = 22
 best_fitness = []
 genome_list= []
+lista_medias = []
+numero_experimentos = 20
 
-for gen in range(iteration):
-    print(gen,"- geração")
-    offspring = crossover(pop_bin, crossover_rate)
-    offspring = mutation(offspring, mutation_rate)
+for i in range(numero_experimentos):
+    for gen in range(iteration):
+        print(gen,"- geração")
+        offspring = crossover(pop_bin, crossover_rate)
+        offspring = mutation(offspring, mutation_rate)
 
-    for p in offspring:
-        offspring_mutaded.append(p)
-    #print(offspring_mutaded," - Offspring Mutated")
+        for p in offspring:
+            offspring_mutaded.append(p)
+        #print(offspring_mutaded," - Offspring Mutated")
 
-    for _ in offspring_mutaded:
-        genome = ''.join(str(_['x'])+str(_['y']))
-        genome_list.append(genome)
+        for _ in offspring_mutaded:
+            genome = ''.join(str(_['x'])+str(_['y']))
+            genome_list.append(genome)
 
-    #chama a função inicializa para fazer a decodificação da lista mutada/com crossover dos 44 bits para reais
-    for p in genome_list:
-        real_chromossome,real_chromossome_bin = inicializa_pop(bounds,bits,p)
+        #chama a função inicializa para fazer a decodificação da lista mutada/com crossover dos 44 bits para reais
+        for p in genome_list:
+            real_chromossome,real_chromossome_bin = inicializa_pop(bounds,bits,p)
 
-    #calcula os valores da função f6
-    fitness = [function_f6(d) for d in real_chromossome]
+        #calcula os valores da função f6
+        fitness = [function_f6(d) for d in real_chromossome]
 
-    #Descobre o indice do melhor e do pior e seleciona o melhor em real e binario
-    index = np.argmax(fitness)
-    index_min = np.argmin(fitness)
-    current_best = fitness[index]
-    current_best_bin = real_chromossome_bin[index]
-    current_worst_bin = real_chromossome_bin[index_min]
+        #Descobre o indice do melhor e do pior e seleciona o melhor em real e binario
+        index = np.argmax(fitness)
+        index_min = np.argmin(fitness)
+        current_best = fitness[index]
+        current_best_bin = real_chromossome_bin[index]
+        current_worst_bin = real_chromossome_bin[index_min]
 
-    #seleciona o valor maximo em real
-    best_fitness.append(max(fitness))
-
-
-    #faz a seleção na lista de população, adiciona o melhor binario anterior e deleta o pior
-    pop_bin = selection(real_chromossome_bin,fitness,pop_size)
-    pop_bin.append(current_best_bin) #consertar - esta adicionando num real na lista bin
-    del (pop_bin[index_min])
+        #seleciona o valor maximo em real
+        best_fitness.append(max(fitness))
 
 
-print(best_fitness, "lista dos melhores")
-media = np.mean(best_fitness)
+        #faz a seleção na lista de população, adiciona o melhor binario anterior e deleta o pior
+        pop_bin = selection(real_chromossome_bin,fitness,pop_size)
+        pop_bin.append(current_best_bin) #consertar - esta adicionando num real na lista bin
+        del (pop_bin[index_min])
 
-print(media," - Media dos valores do experimento.")
-sys.exit()
+
+    print(best_fitness, "lista dos melhores")
+    media = np.mean(best_fitness)
+    lista_medias.append(media)
+    print(media," - Media dos valores do experimento.")
+
+
 
 # ---------------------------------Gerando os Gráficos-----------------------------------------------#
 
 #Falta Acertar o grafico para fazer a media dos experimentos
-
 fig = plt.figure()
-plt.plot(best_fitness)
-fig.subtitle('Evolução')
-plt.xlabel('Iteração')
-plt.ylabel('Function F6 Values')
-print("Solução Otima",inicializa_pop(bounds,bits,current_best))
+plt.plot(lista_medias)
+fig.subtitle('Media das Melhores Soluções por experimento')
+plt.xlabel('Numero de Gerações')
+plt.ylabel('Numero de 9 depois da virgula')
