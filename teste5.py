@@ -6,7 +6,7 @@ from random import choices
 import sys
 from decimal import Decimal
 
-# Parametros de entrada do GA
+# Parametros de entrada do Algoritmo Genetico
 bounds = [[-100, 100], [-100, 100]]
 iteration = 40
 half_genome = 22
@@ -29,7 +29,6 @@ def function_f6(I):
 # -----------------------------------------------------------------------------------------------#
 
 def mutation(pop_bin, mutation_rate):
-
     offspringX = list()
     offspringY = list()
     population_mutaded = []
@@ -43,7 +42,6 @@ def mutation(pop_bin, mutation_rate):
             "y": c1y[0]
         }
         population_mutaded.append(individual_bit_mutaded)
-    #print(population_mutaded)
 
     return population_mutaded
 
@@ -64,7 +62,6 @@ def meio_mutation(p1,mutation_rate,offspring):
     return offspring
 
 def crossover(pop_bin, crossover_rate):
-
     offspring = []
     for i in range(int(len(pop_bin)/2)):
         p1x = pop_bin[2*i-1]['x']  # parent 1
@@ -87,10 +84,7 @@ def crossover(pop_bin, crossover_rate):
                 'y': c2
             }
             offspring.append(c)
-            '''
-            if i == len(pop_bin) - 2:
-                offspring.append(c2)
-            '''
+
         else:
             c1 = {
                 'x':p1x,
@@ -103,7 +97,6 @@ def crossover(pop_bin, crossover_rate):
             }
             offspring.append(c1)
             #offspring.append(c2)
-
     return offspring
 
 
@@ -219,18 +212,18 @@ for i in range(numero_experimentos):
         del (pop_bin[index_min])
 
 
-    print(best_fitness, "lista dos melhores")
+    print(best_fitness, " -> Lista dos melhores do experimento", i)
     media = np.mean(best_fitness)
     lista_medias.append(media)
-    print(media," - Media dos valores do experimento.")
+    print(media," -> Media dos valores do experimento ", i)
 
 
 
 # ---------------------------------Gerando os Gráficos-----------------------------------------------#
 
 #Falta Acertar o grafico para fazer a media dos experimentos
-fig = plt.figure()
-plt.plot(lista_medias)
-fig.subtitle('Media das Melhores Soluções por experimento')
+fig = plt.plot(lista_medias)
+fig.suptitle('Media das Melhores Soluções por experimento')
 plt.xlabel('Numero de Gerações')
 plt.ylabel('Numero de 9 depois da virgula')
+print(fig)
